@@ -3,11 +3,11 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import mongoose, { mongo } from 'mongoose';
 import dotenv from  'dotenv';
-import multer from 'multer';
 import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import morgan from 'morgan';
+import apiRouter from './routes/router.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,17 +27,10 @@ app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
 app.use(cors());
 
-app.use('/assets', express.static(path.join(__dirname, '../images')));
+app.use('/assets', express.static(path.join(__dirname, '../public/images')));
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, '../images');
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname + Date.now());
-    }
-})
-const upload = multer({ storage }); 
+app.use('/', apiRouter);
+
 
 const PORT = process.env.PORT || 5001;
 mongoose.set('strictQuery', false);
