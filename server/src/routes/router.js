@@ -8,5 +8,6 @@ apiRouter.get('/', (req, res) => {
 })
 
 apiRouter.get('/auth', authRouter);
+apiRouter.get('/users', userRouter);
 
 export default apiRouter;

@@ -17,5 +17,6 @@ const upload = multer({ storage });
 
 authRouter
 .post('/register', upload.single('profile_picture'), register)
+.post('/login', login);
 
 export default authRouter;
