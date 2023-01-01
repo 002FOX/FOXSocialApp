@@ -1,22 +1,13 @@
 import { Router } from 'express';
-import multer from 'multer';
 import { register } from '../controllers/authController.js'
+import { login, logout } from '../controllers/authController.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const authRouter = Router();
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, '../images');
-    },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname + Date.now());
-    }
-})
-
-const upload = multer({ storage }); 
-
 authRouter
-.post('/register', upload.single('profile_picture'), register)
-.post('/login', login);
+.post('/register', register)
+.post('/login', login)
+.get('/logout', logout);
 
 export default authRouter;

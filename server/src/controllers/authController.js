@@ -30,21 +30,34 @@ export const login = async (req, res) => {
         const user = await User.findOne({ email: email });
 
         if(!user) {
-            res.status(400).json({ msg: 'User does not exist' });
+            res.status(400).json({ message: 'User does not exist' });
         }
 
         const passwordConfirm = bcrypt.compare(password, user.password);
 
         if(!passwordConfirm){
-            res.status(400).json({ msg: 'Invalid credentials' });
+            res.status(400).json({ message: 'Invalid credentials' });
         }
 
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
         delete user.password;
+        res.cookie('accessToken', token, { httpOnly: true, maxAge: 900000 });
         res.status(200).json({ token, user });
 
     }catch(error){
 
         res.status(500).json({ error: error.message })
+    }
+}
+
+export const logout = async (req, res) => {
+
+    try{
+
+        res.clearCookie('accessToken');
+        res.status(200).send("Successfully logged out!");
+
+    }catch(error){
+        res.status(404).json({ error: error.message });
     }
 }

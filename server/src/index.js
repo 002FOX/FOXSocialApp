@@ -1,16 +1,11 @@
 import express from 'express';
 import cors from 'cors';
-import bodyParser from 'body-parser';
 import mongoose, { mongo } from 'mongoose';
 import dotenv from  'dotenv';
 import helmet from 'helmet';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import morgan from 'morgan';
 import apiRouter from './routes/router.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 dotenv.config();
 
 const app = express();
@@ -22,14 +17,13 @@ app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
 
 app.use(morgan('common'));
 
-app.use(bodyParser.json({ limit: '5mb', extended: true }));
-app.use(bodyParser.urlencoded({ limit: '5mb', extended: true }));
 
 app.use(cors());
 
-app.use('/assets', express.static(path.join(__dirname, '../public/images')));
 
 app.use('/', apiRouter);
+
+// Error handler
 
 
 const PORT = process.env.PORT || 5001;
