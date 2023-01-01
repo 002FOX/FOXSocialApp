@@ -1,16 +1,18 @@
 import express from 'express';
 import cors from 'cors';
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import dotenv from  'dotenv';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import apiRouter from './routes/router.js';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(helmet());
 app.use(helmet.crossOriginResourcePolicy({ policy: 'cross-origin' }));
