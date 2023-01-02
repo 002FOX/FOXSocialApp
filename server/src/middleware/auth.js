@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import Token from '../models/token.js';
 import User from '../models/user.js';
+
 
 export const verifyToken = (req, res, next) => {
 
@@ -32,17 +32,35 @@ export const verifyToken = (req, res, next) => {
 export const refreshToken = async (req, res, next) => {
 
     const token = req.cookies.refreshToken;
-    if(!token) return res.status(401);
-    const isToken = await Token.findOne({ refreshToken: token });
-    if(!isToken) return res.status(401);
+    if(!token) return res.status(401).send("No one logged in");
+
+    const foundUser = await User.findOne({ refreshTokens: token });
+
+    if(!foundUser){ 
+        return res.status(403);
+    }
+
+    const newRefreshTokenArray = foundUser.refreshTokens.filter(rt => rt !== token);
 
     jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, payload) => {
-        if(err !== null) return res.status(403).json({ error: err });
+
+        if(err){
+            foundUser.refreshTokens = [...newRefreshTokenArray];
+            await foundUser.save();
+            return res.status(403).json({ error: err });
+        }
+
         const user = await User.findOne({ _id: payload.id });
         if(!user) return res.status(403).json({ message: "No one is logged in!" });
+
         const accessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
-        res.cookie('accessToken', accessToken);
-        return res.status(200).json({ accessToken: accessToken });
+        const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET, { expiresIn: "24h" });
+        
+        user.refreshTokens = [...newRefreshTokenArray, refreshToken];
+        await user.save();
+
+        res.cookie('accessToken', accessToken , { httpOnly: true }).cookie('refreshToken', refreshToken, { httpOnly: true });
+        return res.status(200).json({ accessToken: accessToken, refreshToken: refreshToken });
     });
 
 }

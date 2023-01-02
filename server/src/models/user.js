@@ -26,6 +26,10 @@ const UserSchema = new mongoose.Schema(
         friends: {
             type: Array,
             default: [],
+        },
+        refreshTokens: {
+            type: [String],
+            default: [],
         }
     },
     {
